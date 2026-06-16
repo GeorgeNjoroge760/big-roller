@@ -1,3 +1,22 @@
+var prevNotifCount = 0;
+
+function playChime() {
+    try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.4);
+    } catch(e) {}
+}
+
 $(document).ready(function() {
     $('.alert-dismissible .btn-close').on('click', function() {
         $(this).closest('.alert').fadeOut(300);
@@ -24,6 +43,10 @@ $(document).ready(function() {
     function updateNotifBadge() {
         $.get('/notifications/unread-count/', function(data) {
             var badge = $('#notif-badge');
+            if (data.count > prevNotifCount) {
+                playChime();
+            }
+            prevNotifCount = data.count;
             if (data.count > 0) {
                 if (badge.length) {
                     badge.text(data.count);

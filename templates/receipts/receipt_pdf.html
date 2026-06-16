@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt {{ receipt.receipt_number }}</title>
+    <style>
+        @page { size: 80mm 200mm; margin: 10mm; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #000; margin: 0; padding: 0; }
+        h3 { font-size: 16px; font-weight: 800; color: #d4a84b; margin: 5px 0; text-align: center; }
+        small { font-size: 10px; color: #666; }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        th { text-align: left; color: #666; font-size: 9px; padding: 4px 2px; }
+        td { padding: 3px 2px; }
+        .text-center { text-align: center; }
+        .text-end { text-align: right; }
+        .text-muted { color: #666; }
+        .receipt-header { border-bottom: 2px dashed #d4a84b; padding-bottom: 8px; margin-bottom: 8px; text-align: center; }
+        .receipt-divider { border-top: 1px dashed #ccc; margin: 6px 0; }
+        .receipt-total { background: #f5f5f5; border-radius: 6px; padding: 8px; border: 1px solid #ddd; }
+        .fw-bold { font-weight: bold; }
+        .mt-1 { margin-top: 4px; }
+        .mt-2 { margin-top: 8px; }
+        .mb-1 { margin-bottom: 4px; }
+        .mb-2 { margin-bottom: 8px; }
+        .row { width: 100%; }
+        .col-6 { width: 48%; display: inline-block; vertical-align: top; }
+        .footer { text-align: center; color: #888; font-size: 9px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="receipt-header">
+        <h3>Cheers Club & Bar</h3>
+        <small>Receipt #{{ receipt.receipt_number }}</small>
+    </div>
+    <div class="row mb-2">
+        <div class="col-6">
+            <small class="text-muted">Order:</small><br>
+            <strong>{{ receipt.order.order_number }}</strong>
+        </div>
+        <div class="col-6 text-end">
+            <small class="text-muted">Date:</small><br>
+            <strong>{{ receipt.generated_at|date:'d M Y H:i' }}</strong>
+        </div>
+    </div>
+    <div class="mb-1">
+        <small class="text-muted">Customer:</small><br>
+        <strong>{{ receipt.order.customer_name }}</strong>
+    </div>
+    <div class="mb-2">
+        <small class="text-muted">Served by:</small><br>
+        <strong>{{ receipt.order.waiter.username|default:'N/A' }}</strong>
+    </div>
+    <hr class="receipt-divider">
+    <table>
+        <thead>
+            <tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Price</th><th class="text-end">Total</th></tr>
+        </thead>
+        <tbody>
+            {% for item in receipt.order.items.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td class="text-end">{{ item.quantity }}</td>
+                <td class="text-end">Ksh {{ item.unit_price|floatformat:2 }}</td>
+                <td class="text-end">Ksh {{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <hr class="receipt-divider">
+    <div class="receipt-total">
+        <table>
+            <tr>
+                <td style="font-size:11px; font-weight:600;">Total Amount</td>
+                <td class="text-end" style="font-size:13px; font-weight:800; color:#d4a84b;">Ksh {{ receipt.order.total_amount|floatformat:2 }}</td>
+            </tr>
+        </table>
+    </div>
+    {% if receipt.order.payment %}
+    <table class="mt-1">
+        <tr>
+            <td class="text-muted">Payment Method:</td>
+            <td class="text-end"><strong>{{ receipt.order.payment.get_method_display }}</strong></td>
+        </tr>
+    </table>
+    {% endif %}
+    <hr class="receipt-divider">
+    <div class="footer">
+        <p class="mb-1">Thank you for visiting Cheers Club!</p>
+        <small>Drink responsibly &bull; Enjoy responsibly</small>
+    </div>
+</body>
+</html>

@@ -62,18 +62,26 @@
                     <div class="alert alert-success mt-3">
                         <i class="bi bi-check-circle"></i> Receipt sent to waiter
                     </div>
+                    <a href="{% url 'receipts:receipt_detail' receipt.id %}" class="btn btn-gold w-100 mt-2" target="_blank">
+                        <i class="bi bi-receipt"></i> View Receipt Copy
+                    </a>
                     <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-gold w-100 mt-2">
                         <i class="bi bi-arrow-right"></i> Back to Order
                     </a>
                     {% else %}
-                    <p class="text-muted">Send this receipt to <strong>{{ order.waiter.username|default:'the waiter' }}</strong> who placed the order.</p>
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="send">
-                        <button type="submit" class="btn btn-gold w-100">
-                            <i class="bi bi-send"></i> Send to Waiter
-                        </button>
-                    </form>
+                    <div class="d-grid gap-2">
+                        <p class="text-muted">Print or save your copy before sending to the waiter.</p>
+                        <a href="{% url 'receipts:receipt_detail' receipt.id %}" class="btn btn-outline-gold w-100" target="_blank">
+                            <i class="bi bi-printer"></i> Print / Save Copy
+                        </a>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="send">
+                            <button type="submit" class="btn btn-gold w-100">
+                                <i class="bi bi-send"></i> Send to Waiter
+                            </button>
+                        </form>
+                    </div>
                     {% endif %}
                 </div>
             </div>

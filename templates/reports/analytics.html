@@ -91,8 +91,9 @@
     }
     function loadAnalytics(days) {
         destroyCharts();
+        $('#analytics-error').remove();
         $.get('/reports/analytics/data/?days=' + days, function(data) {
-            $('#stat-revenue .stat-value').text('Ksh ' + data.total_revenue.toLocaleString());
+            $('#stat-revenue .stat-value').text('Ksh ' + Number(data.total_revenue).toLocaleString());
             $('#stat-orders .stat-value').text(data.total_orders);
             charts.push(new Chart(document.getElementById('revenueTrendChart'), {
                 type: 'line',
@@ -101,8 +102,8 @@
                     datasets: [{
                         label: 'Revenue',
                         data: data.daily_sales.map(function(d) { return d.total; }),
-                        borderColor: '#d4a84b',
-                        backgroundColor: 'rgba(212, 168, 75, 0.1)',
+                        borderColor: '#2e7d32',
+                        backgroundColor: 'rgba(46, 125, 50, 0.08)',
                         fill: true,
                         tension: 0.4
                     }]
@@ -110,13 +111,13 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#8888a0' } } },
+                    plugins: { legend: { labels: { color: '#666' } } },
                     scales: {
-                        x: { ticks: { color: '#8888a0' }, grid: { color: '#2a2a3a' } },
-                        y: { ticks: { color: '#8888a0' }, grid: { color: '#2a2a3a' } }
+                        x: { ticks: { color: '#666' }, grid: { color: '#e0e0e0' } },
+                        y: { ticks: { color: '#666' }, grid: { color: '#e0e0e0' } }
                     }
                 }
-            });
+            }));
             charts.push(new Chart(document.getElementById('bestProductsChart'), {
                 type: 'bar',
                 data: {
@@ -134,12 +135,12 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { ticks: { color: '#8888a0' }, grid: { color: '#2a2a3a' } },
-                        y: { ticks: { color: '#8888a0' }, grid: { display: false } }
+                        x: { ticks: { color: '#666' }, grid: { color: '#e0e0e0' } },
+                        y: { ticks: { color: '#666' }, grid: { display: false } }
                     }
                 }
             }));
-            var statusLabels = {pending:'Pending',claimed:'Claimed',preparing:'Preparing',ready:'Ready',picked_up:'Picked Up',delivered:'Delivered',cancelled:'Cancelled'};
+            var statusLabels = {pending:'Pending',delivered:'Delivered',cancelled:'Cancelled'};
             var labels = Object.keys(data.status_data).map(function(k) { return statusLabels[k] || k; });
             var values = Object.values(data.status_data);
             charts.push(new Chart(document.getElementById('orderStatusChart'), {
@@ -148,20 +149,25 @@
                     labels: labels,
                     datasets: [{
                         data: values,
-                        backgroundColor: ['#f39c12','#3498db','#9b59b6','#2ecc71','#1abc9c','#27ae60','#e74c3c']
+                        backgroundColor: ['#d4a84b','#2e7d32','#c0392b']
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#8888a0' } } }
+                    plugins: { legend: { position: 'bottom', labels: { color: '#666' } } }
                 }
             }));
             var wt = '';
             data.waiter_performance.forEach(function(w) {
-                wt += '<tr><td><strong>' + w.waiter + '</strong></td><td>' + w.orders + '</td><td>Ksh ' + w.total.toLocaleString() + '</td></tr>';
+                wt += '<tr><td><strong>' + w.waiter + '</strong></td><td>' + w.orders + '</td><td>Ksh ' + Number(w.total).toLocaleString() + '</td></tr>';
             });
             $('#waiter-table tbody').html(wt || '<tr><td colspan="3" class="text-center">No data</td></tr>');
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            var errHtml = '<div id="analytics-error" class="alert alert-danger mt-3"><i class="bi bi-exclamation-triangle"></i> Failed to load analytics data: ' + textStatus + ' (' + errorThrown + ')</div>';
+            $('.page-header').after(errHtml);
+            $('#stat-revenue .stat-value').text('Error');
+            $('#stat-orders .stat-value').text('Error');
         });
     }
     $(document).ready(function() {

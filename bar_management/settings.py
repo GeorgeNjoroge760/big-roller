@@ -1,11 +1,14 @@
 import os
 from pathlib import Path
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-bar-club-mgmt-sys-key-2024'
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = config('DJANGO_SECRET_KEY', default='django-insecure-bar-club-mgmt-sys-key-2024')
+DEBUG = config('DJANGO_DEBUG', default=True, cast=bool)
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='*').split(',')
+
+CSRF_TRUSTED_ORIGINS = config('DJANGO_CSRF_TRUSTED_ORIGINS', default='').split(',') if config('DJANGO_CSRF_TRUSTED_ORIGINS', default='') else []
 
 INSTALLED_APPS = [
     'django.contrib.admin',

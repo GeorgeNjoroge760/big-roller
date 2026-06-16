@@ -7,6 +7,7 @@
             <h1><i class="bi bi-receipt"></i> Receipt #{{ receipt.receipt_number }}</h1>
         </div>
         <div>
+            <a href="{% url 'receipts:download_pdf' receipt.id %}" class="btn btn-success"><i class="bi bi-file-pdf"></i> Save PDF</a>
             <button class="btn btn-gold" onclick="printReceipt()"><i class="bi bi-printer"></i> Print</button>
         </div>
     </div>
@@ -16,7 +17,7 @@
                 <div class="card-body p-4">
                     <div class="text-center receipt-header">
                         <i class="bi bi-cup-straw" style="font-size:2.5rem; color: var(--accent-gold);"></i>
-                        <h3 class="mb-0 mt-2" style="color: var(--accent-gold); font-weight:800;">Big Roller Club & Bar</h3>
+                        <h3 class="mb-0 mt-2" style="color: var(--accent-gold); font-weight:800;">Cheers Club & Bar</h3>
                         <small class="text-muted">Receipt #{{ receipt.receipt_number }}</small>
                     </div>
                     <div class="row mb-3">
@@ -68,7 +69,7 @@
                     {% endif %}
                     <hr class="receipt-divider">
                     <div class="text-center" style="color: var(--text-muted);">
-                        <p class="mb-1"><i class="bi bi-check-circle" style="color: var(--accent-green);"></i> Thank you for visiting Big Roller!</p>
+                        <p class="mb-1"><i class="bi bi-check-circle" style="color: var(--accent-green);"></i> Thank you for visiting Cheers Club!</p>
                         <small>Drink responsibly • Enjoy responsibly</small>
                     </div>
                 </div>
@@ -85,7 +86,7 @@ function printReceipt() {
     win.document.write('<html><head><title>Receipt {{ receipt.receipt_number }}</title>');
     win.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">');
     win.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">');
-    win.document.write('<style>body { font-family: "Inter", sans-serif; padding: 20px; background: #fff; color: #000; } .text-muted { color: #666 !important; } .receipt-total { background: #f5f5f5; border-radius: 12px; padding: 1rem; border: 1px solid #ddd; } .receipt-divider { border-top: 1px dashed #ccc; } .receipt-header { border-bottom: 2px dashed #f0c040; padding-bottom: 1rem; margin-bottom: 1rem; } .table { color: #000; } .table th { color: #666; }</style>');
+    win.document.write('<style>body { font-family: "Inter", sans-serif; padding: 20px; background: #fff; color: #000; } .text-muted { color: #666 !important; } .receipt-total { background: #f5f5f5; border-radius: 12px; padding: 1rem; border: 1px solid #ddd; } .receipt-divider { border-top: 1px dashed #ccc; } .receipt-header { border-bottom: 2px dashed #f0c040; padding-bottom: 1rem; margin-bottom: 1rem; } .table { color: #000; } .table th { color: #666; } h3 { color: #d4a84b; }</style>');
     win.document.write('</head><body>');
     win.document.write(content);
     win.document.write('</body></html>');

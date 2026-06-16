@@ -90,10 +90,14 @@ def counter_dashboard(request):
     ).count()
     unaccepted = Order.objects.filter(status='pending', counter_attendant__isnull=True)[:10]
     accepted = Order.objects.filter(status='pending', counter_attendant__isnull=False)[:10]
+    processed = Order.objects.filter(
+        status='delivered', counter_attendant=request.user
+    ).prefetch_related('items__product', 'receipt')[:10]
     context = {
         'pending': pending,
         'completed_today': completed_today,
         'unaccepted': unaccepted,
         'accepted': accepted,
+        'processed': processed,
     }
     return render(request, 'dashboards/counter_dashboard.html', context)
