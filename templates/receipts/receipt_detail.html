@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Receipt {{ receipt.receipt_number }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="bi bi-receipt"></i> Receipt #{{ receipt.receipt_number }}</h1>
+        </div>
+        <div>
+            <button class="btn btn-gold" onclick="printReceipt()"><i class="bi bi-printer"></i> Print</button>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card receipt-card" id="receipt-content">
+                <div class="card-body p-4">
+                    <div class="text-center receipt-header">
+                        <i class="bi bi-cup-straw" style="font-size:2.5rem; color: var(--accent-gold);"></i>
+                        <h3 class="mb-0 mt-2" style="color: var(--accent-gold); font-weight:800;">Big Roller Club & Bar</h3>
+                        <small class="text-muted">Receipt #{{ receipt.receipt_number }}</small>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted">Order:</small><br>
+                            <strong style="color: var(--accent-gold);">{{ receipt.order.order_number }}</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <small class="text-muted">Date:</small><br>
+                            <strong>{{ receipt.generated_at|date:'d M Y H:i' }}</strong>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Customer:</small><br>
+                        <strong>{{ receipt.order.customer_name }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Served by:</small><br>
+                        <strong>{{ receipt.order.waiter.username|default:'N/A' }}</strong>
+                    </div>
+                    <hr class="receipt-divider">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in receipt.order.items.all %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>Ksh {{ item.unit_price|floatformat:2 }}</td>
+                                <td>Ksh {{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <hr class="receipt-divider">
+                    <div class="receipt-total">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span style="font-size:1.1rem; font-weight:600;">Total Amount</span>
+                            <span style="font-size:1.3rem; font-weight:800; color: var(--accent-gold);">Ksh {{ receipt.order.total_amount|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    {% if receipt.order.payment %}
+                    <div class="d-flex justify-content-between mt-2">
+                        <span class="text-muted">Payment Method:</span>
+                        <strong>{{ receipt.order.payment.get_method_display }}</strong>
+                    </div>
+                    {% endif %}
+                    <hr class="receipt-divider">
+                    <div class="text-center" style="color: var(--text-muted);">
+                        <p class="mb-1"><i class="bi bi-check-circle" style="color: var(--accent-green);"></i> Thank you for visiting Big Roller!</p>
+                        <small>Drink responsibly • Enjoy responsibly</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function printReceipt() {
+    var content = document.getElementById('receipt-content').innerHTML;
+    var win = window.open('', '', 'width=500,height=600');
+    win.document.write('<html><head><title>Receipt {{ receipt.receipt_number }}</title>');
+    win.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">');
+    win.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">');
+    win.document.write('<style>body { font-family: "Inter", sans-serif; padding: 20px; background: #fff; color: #000; } .text-muted { color: #666 !important; } .receipt-total { background: #f5f5f5; border-radius: 12px; padding: 1rem; border: 1px solid #ddd; } .receipt-divider { border-top: 1px dashed #ccc; } .receipt-header { border-bottom: 2px dashed #f0c040; padding-bottom: 1rem; margin-bottom: 1rem; } .table { color: #000; } .table th { color: #666; }</style>');
+    win.document.write('</head><body>');
+    win.document.write(content);
+    win.document.write('</body></html>');
+    win.document.close();
+    win.print();
+}
+</script>
+{% endblock %}

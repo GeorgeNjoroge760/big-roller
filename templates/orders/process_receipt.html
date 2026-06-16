@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Process Receipt - {{ order.order_number }}{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header">
+        <h1><i class="bi bi-receipt"></i> Process Receipt</h1>
+        <p>Order #{{ order.order_number }} — {{ order.customer_name }}</p>
+    </div>
+
+    {% if receipt_generated %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-receipt-cutoff"></i> Receipt Generated</div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-check-circle" style="font-size: 3rem; color: var(--accent-green);"></i>
+                        <h3 class="mt-2" style="color: var(--accent-green);">Receipt #{{ receipt.receipt_number }}</h3>
+                        <p class="text-muted">Generated {{ receipt.generated_at|date:'d M Y H:i' }}</p>
+                    </div>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted">Order:</small><br>
+                            <strong>{{ order.order_number }}</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <small class="text-muted">Payment:</small><br>
+                            <strong>{{ payment_method|title }}</strong>
+                        </div>
+                    </div>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>Ksh {{ item.unit_price|floatformat:2 }}</td>
+                                <td>Ksh {{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <hr>
+                    <div class="d-flex justify-content-between" style="font-size: 1.2rem;">
+                        <strong>Total</strong>
+                        <strong style="color: var(--accent-gold);">Ksh {{ order.total_amount|floatformat:2 }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-send"></i> Send to Waiter</div>
+                <div class="card-body text-center">
+                    <i class="bi bi-person-badge" style="font-size: 3rem; color: var(--accent-gold);"></i>
+                    <h5 class="mt-2">{{ order.waiter.username|default:'N/A' }}</h5>
+                    {% if receipt_sent %}
+                    <div class="alert alert-success mt-3">
+                        <i class="bi bi-check-circle"></i> Receipt sent to waiter
+                    </div>
+                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-gold w-100 mt-2">
+                        <i class="bi bi-arrow-right"></i> Back to Order
+                    </a>
+                    {% else %}
+                    <p class="text-muted">Send this receipt to <strong>{{ order.waiter.username|default:'the waiter' }}</strong> who placed the order.</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send">
+                        <button type="submit" class="btn btn-gold w-100">
+                            <i class="bi bi-send"></i> Send to Waiter
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-box-seam"></i> Order Items</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr><th>Product</th><th>Price</th><th>Qty</th><th>Subtotal</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td><strong>{{ item.product.name }}</strong></td>
+                                <td>Ksh {{ item.unit_price|floatformat:2 }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>Ksh {{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="3" class="text-end">Total:</td>
+                                <td>Ksh {{ order.total_amount|floatformat:2 }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-credit-card"></i> Generate Receipt</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Customer:</small>
+                        <p class="fw-bold mb-0">{{ order.customer_name }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Waiter:</small>
+                        <p class="fw-bold mb-0">{{ order.waiter.username|default:'N/A' }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <small class="text-muted">Total Amount:</small>
+                        <p class="fw-bold fs-4" style="color: var(--accent-gold);">Ksh {{ order.total_amount|floatformat:2 }}</p>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="generate">
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <select name="payment_method" class="form-select" required>
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                                <option value="mpesa">M-Pesa</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-gold w-100">
+                            <i class="bi bi-receipt"></i> Generate Receipt
+                        </button>
+                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

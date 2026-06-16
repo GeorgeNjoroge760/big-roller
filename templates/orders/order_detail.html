@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Order {{ order.order_number }}{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="bi bi-receipt"></i> Order #{{ order.order_number }}</h1>
+            <p>Placed {{ order.created_at|date:'d M Y H:i' }}</p>
+        </div>
+        <div>
+            {% if order.status == 'pending' and not order.counter_attendant and user.profile.role == 'counter' %}
+            <a href="{% url 'orders:accept_order' order.id %}" class="btn btn-primary">
+                <i class="bi bi-hand-index"></i> Accept Order
+            </a>
+            {% elif order.status == 'pending' and order.counter_attendant and user.profile.role == 'counter' %}
+            <a href="{% url 'orders:process_receipt' order.id %}" class="btn btn-success">
+                <i class="bi bi-receipt"></i> Process Receipt
+            </a>
+            {% endif %}
+            {% if order.status != 'delivered' and order.status != 'cancelled' %}
+            <a href="{% url 'orders:cancel_order' order.id %}" class="btn btn-danger" onclick="return confirm('Cancel this order?')"><i class="bi bi-x-lg"></i> Cancel</a>
+            {% endif %}
+            {% if order.status == 'delivered' and order.receipt %}
+            <a href="{% url 'receipts:receipt_detail' order.receipt.id %}" class="btn btn-gold"><i class="bi bi-receipt"></i> View Receipt</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-box-seam"></i> Order Items</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr><th>Product</th><th>Price</th><th>Qty</th><th>Subtotal</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td><strong>{{ item.product.name }}</strong></td>
+                                <td>Ksh {{ item.unit_price|floatformat:2 }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>Ksh {{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="3" class="text-end">Total:</td>
+                                <td>Ksh {{ order.total_amount|floatformat:2 }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-info-circle"></i> Order Details</div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr><th>Status</th><td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td></tr>
+                        <tr><th>Customer</th><td>{{ order.customer_name }}</td></tr>
+                        <tr><th>Waiter</th><td>{{ order.waiter.username|default:'Not assigned' }}</td></tr>
+                        <tr><th>Counter</th><td>{{ order.counter_attendant.username|default:'Not assigned' }}</td></tr>
+                        <tr><th>Total</th><td><strong>Ksh {{ order.total_amount|floatformat:2 }}</strong></td></tr>
+                        {% if order.notes %}<tr><th>Notes</th><td>{{ order.notes }}</td></tr>{% endif %}
+                        {% if order.status == 'delivered' %}
+                        <tr>
+                            <th>Receipt</th>
+                            <td>
+                                {% if order.receipt %}
+                                <a href="{% url 'receipts:receipt_detail' order.receipt.id %}" class="btn btn-sm btn-gold"><i class="bi bi-receipt"></i> View</a>
+                                {% if order.receipt_sent %}
+                                <span class="badge badge-delivered">Sent to waiter</span>
+                                {% endif %}
+                                {% else %}
+                                <span class="text-muted">Not generated</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+            <div class="card mt-3">
+                <div class="card-header"><i class="bi bi-clock-history"></i> Timeline</div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-time">{{ order.created_at|date:'H:i' }}</div>
+                            <div class="timeline-text">Order placed by {{ order.waiter.username }}</div>
+                        </div>
+                        {% if order.counter_attendant and not order.delivered_at %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background:var(--accent-blue)"></div>
+                            <div class="timeline-time">--:--</div>
+                            <div class="timeline-text">Accepted by {{ order.counter_attendant.username }}</div>
+                        </div>
+                        {% endif %}
+                        {% if order.delivered_at %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background:var(--accent-green)"></div>
+                            <div class="timeline-time">{{ order.delivered_at|date:'H:i' }}</div>
+                            <div class="timeline-text">Delivered by {{ order.counter_attendant.username }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

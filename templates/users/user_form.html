@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}{% if edit_user %}Edit User{% else %}Add User{% endif %}{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header">
+        <h1><i class="bi bi-{% if edit_user %}pencil{% else %}plus-lg{% endif %}"></i> {% if edit_user %}Edit User{% else %}Add User{% endif %}</h1>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" value="{{ edit_user.username|default:'' }}" {% if edit_user %}readonly{% endif %} required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ edit_user.email|default:'' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="{% if edit_user %}Leave blank to keep current{% endif %}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select name="role" class="form-select">
+                                <option value="waiter" {% if edit_user.profile.role == 'waiter' %}selected{% endif %}>Waiter</option>
+                                <option value="counter" {% if edit_user.profile.role == 'counter' %}selected{% endif %}>Counter Attendant</option>
+                                <option value="admin" {% if edit_user.profile.role == 'admin' %}selected{% endif %}>Admin</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ edit_user.profile.phone|default:'' }}">
+                        </div>
+                        <button type="submit" class="btn btn-gold"><i class="bi bi-check-lg"></i> {% if edit_user %}Update{% else %}Create{% endif %} User</button>
+                        <a href="{% url 'users:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

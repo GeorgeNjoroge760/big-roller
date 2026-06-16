@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Low Stock Alerts{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header">
+        <h1><i class="bi bi-exclamation-triangle"></i> Low Stock Alerts</h1>
+        <p>Products that need restocking</p>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            {% if products %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr><th>Product</th><th>Category</th><th>Current Stock</th><th>Min Level</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td><strong>{{ product.name }}</strong></td>
+                            <td>{{ product.category.name }}</td>
+                            <td><span class="badge bg-danger">{{ product.stock }}</span></td>
+                            <td>{{ product.min_stock_level }}</td>
+                            <td><span class="badge bg-warning text-dark">Low Stock</span></td>
+                            <td><a href="{% url 'products:product_edit' product.id %}" class="btn btn-sm btn-outline-gold">Restock</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-check-circle" style="color: #2ecc71;"></i>
+                <h4>All Stock Levels Healthy</h4>
+                <p>No products are below their minimum stock level</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

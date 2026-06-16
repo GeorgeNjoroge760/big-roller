@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Waiter Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header">
+        <h1><i class="bi bi-person-badge"></i> Waiter Dashboard</h1>
+        <p>Welcome, {{ user.username }}! Place and track your orders.</p>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card blue">
+                <i class="bi bi-bell stat-icon"></i>
+                <div class="stat-value">{{ pending }}</div>
+                <div class="stat-label">Pending Orders</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card purple">
+                <i class="bi bi-clipboard-check stat-icon"></i>
+                <div class="stat-value">{{ active }}</div>
+                <div class="stat-label">Active Orders</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card teal">
+                <i class="bi bi-receipt stat-icon"></i>
+                <div class="stat-value">{{ receipts_ready }}</div>
+                <div class="stat-label">Receipts Ready</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card gold">
+                <i class="bi bi-cash stat-icon"></i>
+                <div class="stat-value">Ksh {{ total_sales|floatformat:0 }}</div>
+                <div class="stat-label">Total Sales</div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-clock"></i> Active Orders</span>
+                    <a href="{% url 'products:menu' %}" class="btn btn-sm btn-gold"><i class="bi bi-plus"></i> New Order</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for order in my_orders_active %}
+                                <tr>
+                                    <td><a href="{% url 'orders:order_detail' order.id %}">{{ order.order_number }}</a></td>
+                                    <td>{{ order.customer_name }}</td>
+                                    <td>Ksh {{ order.total_amount|floatformat:0 }}</td>
+                                    <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                                    <td><a href="{% url 'orders:order_detail' order.id %}" class="btn btn-sm btn-outline-gold">View</a></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-4">No active orders</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-receipt"></i> Completed Orders — Receipts Ready</div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr><th>Order #</th><th>Customer</th><th>Total</th><th>Paid</th><th>Receipt</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for order in my_orders_completed %}
+                                <tr>
+                                    <td><a href="{% url 'orders:order_detail' order.id %}">{{ order.order_number }}</a></td>
+                                    <td>{{ order.customer_name }}</td>
+                                    <td>Ksh {{ order.total_amount|floatformat:0 }}</td>
+                                    <td><span class="badge badge-delivered">Paid</span></td>
+                                    <td>
+                                        {% if order.receipt_sent %}
+                                        <span class="text-success"><i class="bi bi-check-circle"></i> Sent</span>
+                                        {% elif order.receipt %}
+                                        <a href="{% url 'receipts:receipt_detail' order.receipt.id %}" class="btn btn-sm btn-gold"><i class="bi bi-receipt"></i> View Receipt</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-4">No completed orders yet</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

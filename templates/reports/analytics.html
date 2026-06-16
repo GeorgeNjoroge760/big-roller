@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header">
+        <h1><i class="bi bi-bar-chart"></i> Analytics Dashboard</h1>
+        <p>Comprehensive business intelligence and insights</p>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card gold" id="stat-revenue">
+                <i class="bi bi-cash-stack stat-icon"></i>
+                <div class="stat-value">Loading...</div>
+                <div class="stat-label">Total Revenue (30d)</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card blue" id="stat-orders">
+                <i class="bi bi-receipt stat-icon"></i>
+                <div class="stat-value">Loading...</div>
+                <div class="stat-label">Total Orders (30d)</div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <span><i class="bi bi-graph-up"></i> Revenue Trend</span>
+                    <div>
+                        <select class="form-select form-select-sm d-inline-block w-auto" id="days-select">
+                            <option value="7">7 Days</option>
+                            <option value="30" selected>30 Days</option>
+                            <option value="90">90 Days</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="revenueTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-trophy"></i> Best Selling Products</div>
+                <div class="card-body">
+                    <div class="chart-container" style="height:300px;">
+                        <canvas id="bestProductsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 mt-2">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-person-check"></i> Waiter Performance</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" id="waiter-table">
+                            <thead>
+                                <tr><th>Waiter</th><th>Orders</th><th>Total Sales</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-pie-chart"></i> Order Status Distribution</div>
+                <div class="card-body">
+                    <div class="chart-container" style="height:250px;">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    var charts = [];
+    function destroyCharts() {
+        charts.forEach(function(c) { c.destroy(); });
+        charts = [];
+    }
+    function loadAnalytics(days) {
+        destroyCharts();
+        $.get('/reports/analytics/data/?days=' + days, function(data) {
+            $('#stat-revenue .stat-value').text('Ksh ' + data.total_revenue.toLocaleString());
+            $('#stat-orders .stat-value').text(data.total_orders);
+            charts.push(new Chart(document.getElementById('revenueTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: data.daily_sales.map(function(d) { return d.date; }),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: data.daily_sales.map(function(d) { return d.total; }),
+                        borderColor: '#d4a84b',
+                        backgroundColor: 'rgba(212, 168, 75, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#8888a0' } } },
+                    scales: {
+                        x: { ticks: { color: '#8888a0' }, grid: { color: '#2a2a3a' } },
+                        y: { ticks: { color: '#8888a0' }, grid: { color: '#2a2a3a' } }
+                    }
+                }
+            });
+            charts.push(new Chart(document.getElementById('bestProductsChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.best_products.map(function(p) { return p.name; }).slice(0, 6),
+                    datasets: [{
+                        label: 'Sold',
+                        data: data.best_products.map(function(p) { return p.sold; }),
+                        backgroundColor: '#d4a84b',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#8888a0' }, grid: { color: '#2a2a3a' } },
+                        y: { ticks: { color: '#8888a0' }, grid: { display: false } }
+                    }
+                }
+            }));
+            var statusLabels = {pending:'Pending',claimed:'Claimed',preparing:'Preparing',ready:'Ready',picked_up:'Picked Up',delivered:'Delivered',cancelled:'Cancelled'};
+            var labels = Object.keys(data.status_data).map(function(k) { return statusLabels[k] || k; });
+            var values = Object.values(data.status_data);
+            charts.push(new Chart(document.getElementById('orderStatusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#f39c12','#3498db','#9b59b6','#2ecc71','#1abc9c','#27ae60','#e74c3c']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#8888a0' } } }
+                }
+            }));
+            var wt = '';
+            data.waiter_performance.forEach(function(w) {
+                wt += '<tr><td><strong>' + w.waiter + '</strong></td><td>' + w.orders + '</td><td>Ksh ' + w.total.toLocaleString() + '</td></tr>';
+            });
+            $('#waiter-table tbody').html(wt || '<tr><td colspan="3" class="text-center">No data</td></tr>');
+        });
+    }
+    $(document).ready(function() {
+        loadAnalytics(30);
+        $('#days-select').on('change', function() {
+            loadAnalytics(parseInt($(this).val()));
+        });
+    });
+</script>
+{% endblock %}

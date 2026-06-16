@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="bi bi-bell"></i> Notifications</h1>
+            <p>{{ unread_count }} unread notifications</p>
+        </div>
+        <a href="{% url 'notifications:mark_all_read' %}" class="btn btn-sm btn-outline-gold"><i class="bi bi-check-all"></i> Mark All Read</a>
+    </div>
+    <div class="card">
+        <div class="card-body p-0">
+            {% for notification in notifications %}
+            <a href="{% url 'notifications:mark_read' notification.id %}" class="text-decoration-none">
+                <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <i class="bi bi-{% if notification.notification_type == 'success' %}check-circle text-success{% elif notification.notification_type == 'warning' %}exclamation-triangle text-warning{% elif notification.notification_type == 'danger' %}x-circle text-danger{% else %}info-circle text-info{% endif %} me-2"></i>
+                            <strong>{{ notification.title }}</strong>
+                        </div>
+                        <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-0 mt-1 text-muted small">{{ notification.message }}</p>
+                </div>
+            </a>
+            {% empty %}
+            <div class="empty-state py-5">
+                <i class="bi bi-bell-slash"></i>
+                <h4>No notifications</h4>
+                <p>You're all caught up!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

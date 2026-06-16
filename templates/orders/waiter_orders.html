@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}My Orders{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="bi bi-clipboard-check"></i> My Orders</h1>
+            <p>Orders you have placed</p>
+        </div>
+        <a href="{% url 'products:menu' %}" class="btn btn-gold"><i class="bi bi-plus"></i> New Order</a>
+    </div>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Placed</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td><strong>{{ order.order_number }}</strong></td>
+                            <td>{{ order.customer_name }}</td>
+                            <td>{{ order.items.count }}</td>
+                            <td>Ksh {{ order.total_amount|floatformat:2 }}</td>
+                            <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                            <td><small>{{ order.created_at|timesince }} ago</small></td>
+                            <td>
+                                <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-sm btn-outline-gold">View</a>
+                                {% if order.status == 'pending' %}
+                                <a href="{% url 'orders:cancel_order' order.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this order?')">Cancel</a>
+                                {% endif %}
+                                {% if order.status == 'delivered' and order.receipt %}
+                                <a href="{% url 'receipts:receipt_detail' order.receipt.id %}" class="btn btn-sm btn-gold"><i class="bi bi-receipt"></i> Receipt</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center py-4">No orders yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

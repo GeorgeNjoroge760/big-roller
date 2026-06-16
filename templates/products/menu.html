@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Place Order{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="bi bi-cart-plus"></i> Place Order</h1>
+            <p>Select items and quantities to place a new order</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="form-control" id="menu-search" placeholder="Search drinks...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="cat-filter">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <form method="post" action="{% url 'orders:place_order' %}" id="order-form">
+                {% csrf_token %}
+                <div class="row g-3" id="menu-items">
+                    {% for product in products %}
+                    <div class="col-md-4 col-sm-6 menu-item" data-category="{{ product.category_id }}" data-name="{{ product.name|lower }}">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">{{ product.name }}</h6>
+                                        <span class="badge bg-secondary mb-2">{{ product.category.name }}</span>
+                                        <p class="small text-muted mb-2">{{ product.description|truncatewords:10 }}</p>
+                                    </div>
+                                    <span class="price">Ksh {{ product.price|floatformat:0 }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    {% if product.stock > 0 %}
+                                    <div class="input-group input-group-sm" style="width:130px;">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="decQty(this)">-</button>
+                                        <input type="number" name="qty_{{ product.id }}" class="form-control text-center qty-input" value="0" min="0" max="{{ product.stock }}" data-price="{{ product.price }}">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="incQty(this)">+</button>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-gold" onclick="addItem({{ product.id }}, '{{ product.name|escapejs }}', {{ product.price }})">
+                                        <i class="bi bi-plus-lg"></i> Add
+                                    </button>
+                                    {% else %}
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="bi bi-cup-straw"></i>
+                            <h4>No drinks available</h4>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="items" id="items-input">
+                <input type="hidden" name="quantities" id="quantities-input">
+                <input type="hidden" name="customer_name" id="customer-name-input" value="Walk-in Customer">
+            </form>
+        </div>
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top:90px;">
+                <div class="card-header d-flex justify-content-between">
+                    <span><i class="bi bi-cart"></i> Current Order</span>
+                    <button class="btn btn-sm btn-outline-danger" onclick="clearOrder()" type="button">Clear</button>
+                </div>
+                <div class="card-body p-0" id="order-items-list">
+                    <div class="text-center py-5 text-muted" id="empty-cart">
+                        <i class="bi bi-cart-x" style="font-size:2rem;"></i>
+                        <p class="mt-2 mb-0">No items added</p>
+                        <small>Click "Add" on drinks above</small>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Total:</strong>
+                        <strong class="text-gold" id="order-total">Ksh 0</strong>
+                    </div>
+                    <input type="text" class="form-control mb-2" placeholder="Customer name" id="customer-name" value="Walk-in Customer">
+                    <button class="btn btn-gold w-100" onclick="submitOrder()" type="button">
+                        <i class="bi bi-check-lg"></i> Place Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    var orderItems = [];
+
+    function addItem(id, name, price) {
+        var existing = orderItems.find(function(i) { return i.id === id; });
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            orderItems.push({id: id, name: name, price: price, qty: 1});
+        }
+        document.querySelector('input[name="qty_' + id + '"]').value = existing ? existing.qty : 1;
+        renderOrder();
+    }
+
+    function removeItem(id) {
+        orderItems = orderItems.filter(function(i) { return i.id !== id; });
+        document.querySelector('input[name="qty_' + id + '"]').value = 0;
+        renderOrder();
+    }
+
+    function updateQty(id, qty) {
+        var item = orderItems.find(function(i) { return i.id === id; });
+        if (item) {
+            if (qty <= 0) {
+                removeItem(id);
+                return;
+            }
+            item.qty = qty;
+            renderOrder();
+        }
+    }
+
+    function incQty(btn) {
+        var input = btn.parentNode.querySelector('.qty-input');
+        var max = parseInt(input.getAttribute('max'));
+        var val = parseInt(input.value) || 0;
+        if (val < max) input.value = val + 1;
+    }
+
+    function decQty(btn) {
+        var input = btn.parentNode.querySelector('.qty-input');
+        var val = parseInt(input.value) || 0;
+        if (val > 0) input.value = val - 1;
+    }
+
+    function renderOrder() {
+        var list = document.getElementById('order-items-list');
+        var empty = document.getElementById('empty-cart');
+        var totalSpan = document.getElementById('order-total');
+        if (!orderItems.length) {
+            list.innerHTML = '<div class="text-center py-5 text-muted" id="empty-cart"><i class="bi bi-cart-x" style="font-size:2rem;"></i><p class="mt-2 mb-0">No items added</p><small>Click "Add" on drinks above</small></div>';
+            totalSpan.textContent = 'Ksh 0';
+            return;
+        }
+        var html = '<div class="list-group list-group-flush">';
+        var total = 0;
+        orderItems.forEach(function(item) {
+            var subtotal = item.price * item.qty;
+            total += subtotal;
+            html += '<div class="list-group-item d-flex justify-content-between align-items-center">';
+            html += '<div><strong>' + item.name + '</strong><br><small class="text-muted">Ksh ' + item.price.toFixed(2) + ' x ' + item.qty + '</small></div>';
+            html += '<div class="d-flex align-items-center gap-1">';
+            html += '<button class="btn btn-sm btn-outline-secondary" onclick="updateQty(' + item.id + ', ' + (item.qty - 1) + ')">-</button>';
+            html += '<span class="fw-bold mx-1">' + item.qty + '</span>';
+            html += '<button class="btn btn-sm btn-outline-secondary" onclick="updateQty(' + item.id + ', ' + (item.qty + 1) + ')">+</button>';
+            html += '<button class="btn btn-sm btn-outline-danger ms-1" onclick="removeItem(' + item.id + ')"><i class="bi bi-x"></i></button>';
+            html += '</div></div>';
+        });
+        html += '</div>';
+        list.innerHTML = html;
+        totalSpan.textContent = 'Ksh ' + total.toFixed(2);
+    }
+
+    function submitOrder() {
+        if (!orderItems.length) { alert('Add at least one item to the order.'); return; }
+        var ids = orderItems.map(function(i) { return i.id; }).join(',');
+        var qtys = orderItems.map(function(i) { return i.qty; }).join(',');
+        document.getElementById('items-input').value = ids;
+        document.getElementById('quantities-input').value = qtys;
+        document.getElementById('customer-name-input').value = document.getElementById('customer-name').value || 'Walk-in Customer';
+        document.getElementById('order-form').submit();
+    }
+
+    function clearOrder() {
+        orderItems = [];
+        document.querySelectorAll('.qty-input').forEach(function(i) { i.value = 0; });
+        renderOrder();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('cat-filter').addEventListener('change', function() {
+            var cat = this.value;
+            document.querySelectorAll('.menu-item').forEach(function(el) {
+                if (!cat || el.dataset.category === cat) el.style.display = '';
+                else el.style.display = 'none';
+            });
+        });
+        document.getElementById('menu-search').addEventListener('keyup', function() {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('.menu-item').forEach(function(el) {
+                if (!q || el.dataset.name.indexOf(q) > -1) el.style.display = '';
+                else el.style.display = 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header">
+        <h1><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+        <p>Welcome back, {{ user.username }}! Here's your club overview.</p>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card gold">
+                <i class="bi bi-cash-stack stat-icon"></i>
+                <div class="stat-value">Ksh {{ total_revenue_today|floatformat:0 }}</div>
+                <div class="stat-label">Today's Revenue</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card blue">
+                <i class="bi bi-receipt stat-icon"></i>
+                <div class="stat-value">{{ pending_orders }}</div>
+                <div class="stat-label">Pending Orders</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card green">
+                <i class="bi bi-box-seam stat-icon"></i>
+                <div class="stat-value">{{ total_products }}</div>
+                <div class="stat-label">Total Products</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card red">
+                <i class="bi bi-exclamation-triangle stat-icon"></i>
+                <div class="stat-value">{{ low_stock }}</div>
+                <div class="stat-label">Low Stock Items</div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-graph-up"></i> Revenue Overview (7 Days)</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-pie-chart"></i> Order Status</div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 mt-2">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-clock-history"></i> Recent Orders</div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Customer</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td><a href="{% url 'orders:order_detail' order.id %}" class="text-decoration-none">#{{ order.order_number }}</a></td>
+                                    <td>{{ order.customer_name }}</td>
+                                    <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                                    <td>Ksh {{ order.total_amount|floatformat:0 }}</td>
+                                    <td><small class="text-muted">{{ order.created_at|timesince }} ago</small></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-4">No orders yet</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-exclamation-triangle"></i> Low Stock Alerts</div>
+                <div class="card-body" id="stock-alerts">
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-gold" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    $.get('/reports/analytics/data/?days=7', function(data) {
+        var ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.daily_sales.map(function(d) { return d.date; }),
+                datasets: [{
+                    label: 'Revenue',
+                    data: data.daily_sales.map(function(d) { return d.total; }),
+                    borderColor: '#d4a84b',
+                    backgroundColor: 'rgba(212, 168, 75, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#8888a0' } } },
+                scales: {
+                    x: { ticks: { color: '#8888a0' }, grid: { color: '#2a2a3a' } },
+                    y: { ticks: { color: '#8888a0' }, grid: { color: '#2a2a3a' } }
+                }
+            }
+        });
+    });
+    $.get('/reports/analytics/data/?days=30', function(data) {
+        var statusCtx = document.getElementById('statusChart').getContext('2d');
+        var statusLabels = {pending:'Pending',claimed:'Claimed',preparing:'Preparing',ready:'Ready',picked_up:'Picked Up',delivered:'Delivered',cancelled:'Cancelled'};
+        var labels = Object.keys(data.status_data).map(function(k) { return statusLabels[k] || k; });
+        var values = Object.values(data.status_data);
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: ['#f39c12','#3498db','#9b59b6','#2ecc71','#1abc9c','#27ae60','#e74c3c']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: '#8888a0', padding: 10 } } }
+            }
+        });
+    });
+    $.get('/inventory/stock-alerts-api/', function(data) {
+        var html = '';
+        if (data.count === 0) {
+            html = '<div class="text-center py-4"><i class="bi bi-check-circle" style="font-size:2rem;color:#2ecc71"></i><p class="mt-2 text-muted">All stock levels are healthy</p></div>';
+        } else {
+            html = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Product</th><th>Stock</th><th>Min Level</th></tr></thead><tbody>';
+            data.alerts.forEach(function(p) {
+                html += '<tr><td>' + p.name + '</td><td><span class="badge bg-danger">' + p.stock + '</span></td><td>' + p.min_level + '</td></tr>';
+            });
+            html += '</tbody></table></div>';
+        }
+        $('#stock-alerts').html(html);
+    });
+</script>
+{% endblock %}

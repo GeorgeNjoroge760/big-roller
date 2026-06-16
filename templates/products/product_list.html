@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="bi bi-box"></i> Products</h1>
+            <p>Manage your drink inventory</p>
+        </div>
+        <a href="{% url 'products:product_create' %}" class="btn btn-gold"><i class="bi bi-plus-lg"></i> Add Product</a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="form-control search-input" data-target="#product-table" placeholder="Search products...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="category-filter">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover" id="product-table">
+                    <thead>
+                        <tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr class="search-item">
+                            <td>
+                                {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="" style="width:50px;height:50px;object-fit:cover;border-radius:8px;">
+                                {% else %}
+                                <i class="bi bi-cup-straw" style="font-size:2rem;color:var(--text-muted)"></i>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ product.name }}</strong></td>
+                            <td><span class="badge bg-secondary">{{ product.category.name }}</span></td>
+                            <td>Ksh {{ product.price|floatformat:2 }}</td>
+                            <td>
+                                {% if product.stock == 0 %}
+                                <span class="badge bg-danger">Out of Stock</span>
+                                {% elif product.is_low_stock %}
+                                <span class="badge bg-warning text-dark">{{ product.stock }} (Low)</span>
+                                {% else %}
+                                <span class="badge bg-success">{{ product.stock }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{% if product.is_available %}<span class="badge bg-success">Available</span>{% else %}<span class="badge bg-danger">Unavailable</span>{% endif %}</td>
+                            <td>
+                                <a href="{% url 'products:product_edit' product.id %}" class="btn btn-sm btn-outline-gold"><i class="bi bi-pencil"></i></a>
+                                <form method="post" action="{% url 'products:product_delete' product.id %}" style="display:inline;" onsubmit="return confirm('Delete this product?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center py-4">No products found</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    $('#category-filter').on('change', function() {
+        var val = $(this).val();
+        if (val) window.location.href = '?category=' + val;
+        else window.location.href = '.';
+    });
+</script>
+{% endblock %}
