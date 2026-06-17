@@ -527,10 +527,65 @@ hr { border-color: var(--border-color); opacity: 0.8; }
     user-select: none;
 }
 
+.qty-group { width: 130px; }
+
 /* Responsive */
 @media (max-width: 768px) {
     .cart-sidebar { width: 100%; right: -100%; }
     .stat-card .stat-value { font-size: 1.5rem; }
     .page-header h1 { font-size: 1.4rem; }
     .navbar-brand { font-size: 1.1rem; }
+    .product-card .product-img { height: 140px; }
+    body { overflow-x: hidden; }
+    .container-fluid { padding-left: 12px; padding-right: 12px; }
+    .qty-group { width: 110px; }
+}
+
+@media (max-width: 576px) {
+    .stat-card { padding: 1rem; }
+    .stat-card .stat-value { font-size: 1.25rem; }
+    .stat-card .stat-label { font-size: 0.75rem; }
+    .page-header h1 { font-size: 1.15rem; }
+    .page-header { padding: 0.75rem 0; }
+    .navbar-brand { font-size: 0.95rem; }
+    .product-card .product-img { height: 110px; }
+    .product-card .card-body { padding: 0.75rem; }
+    .product-card .card-body .price { font-size: 1rem; }
+    .product-card .card-body .small { font-size: 0.7rem; }
+    .card { margin-bottom: 0.75rem; }
+    .card-body { padding: 1rem; }
+    .table { font-size: 0.78rem; }
+    .table td, .table th { padding: 0.4rem 0.35rem; }
+    .btn-sm { font-size: 0.72rem; padding: 0.2rem 0.5rem; }
+    .badge { font-size: 0.65rem; }
+    .navbar .container-fluid { padding-left: 8px; padding-right: 8px; }
+    .navbar-nav .nav-link { font-size: 0.8rem; padding: 0.4rem 0.5rem; }
+    h4 { font-size: 1rem; }
+    h5 { font-size: 0.9rem; }
+    h6 { font-size: 0.8rem; }
+    .container-fluid.py-4 { padding-top: 0.75rem !important; padding-bottom: 0.75rem !important; }
+    .row { margin-left: -6px; margin-right: -6px; }
+    .row > [class*="col-"] { padding-left: 6px; padding-right: 6px; }
+    .chart-container { height: 200px !important; }
+    .alert { padding: 0.5rem 0.75rem; font-size: 0.8rem; margin-bottom: 0.5rem; }
+    .form-control { font-size: 0.85rem; padding: 0.4rem 0.6rem; }
+    .input-group-sm .form-control, .input-group-sm .btn { font-size: 0.75rem; }
+    .list-group-item { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
+    .modal-dialog { margin: 0.5rem; }
+    .modal-body { padding: 1rem; }
+    .page-link { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+}
+
+@media (max-width: 400px) {
+    .product-card .product-img { height: 90px; }
+    .product-card .card-body { padding: 0.5rem; }
+    .card-body { padding: 0.75rem; }
+    .table { font-size: 0.7rem; }
+    .table td, .table th { padding: 0.3rem 0.25rem; }
+    .stat-card .stat-value { font-size: 1.1rem; }
+    .stat-card .stat-icon { font-size: 1.5rem; }
+    .navbar-brand { font-size: 0.85rem; }
+    .page-header h1 { font-size: 1rem; }
+    h4 { font-size: 0.9rem; }
+    .container-fluid { padding-left: 8px; padding-right: 8px; }
 }

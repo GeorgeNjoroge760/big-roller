@@ -8,28 +8,28 @@
         <p>Welcome back, {{ user.username }}! Here's your club overview.</p>
     </div>
     <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="stat-card gold">
                 <i class="bi bi-cash-stack stat-icon"></i>
                 <div class="stat-value">Ksh {{ total_revenue_today|floatformat:0 }}</div>
                 <div class="stat-label">Today's Revenue</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="stat-card blue">
                 <i class="bi bi-receipt stat-icon"></i>
                 <div class="stat-value">{{ pending_orders }}</div>
                 <div class="stat-label">Pending Orders</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="stat-card green">
                 <i class="bi bi-box-seam stat-icon"></i>
                 <div class="stat-value">{{ total_products }}</div>
                 <div class="stat-label">Total Products</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="stat-card red">
                 <i class="bi bi-exclamation-triangle stat-icon"></i>
                 <div class="stat-value">{{ low_stock }}</div>

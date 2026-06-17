@@ -7,28 +7,28 @@
         <p>Welcome, {{ user.username }}! Place and track your orders.</p>
     </div>
     <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="stat-card blue">
                 <i class="bi bi-bell stat-icon"></i>
                 <div class="stat-value">{{ pending }}</div>
                 <div class="stat-label">Pending Orders</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="stat-card purple">
                 <i class="bi bi-clipboard-check stat-icon"></i>
                 <div class="stat-value">{{ active }}</div>
                 <div class="stat-label">Active Orders</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="stat-card teal">
                 <i class="bi bi-receipt stat-icon"></i>
                 <div class="stat-value">{{ receipts_ready }}</div>
                 <div class="stat-label">Receipts Ready</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="stat-card gold">
                 <i class="bi bi-cash stat-icon"></i>
                 <div class="stat-value">Ksh {{ total_sales|floatformat:0 }}</div>
