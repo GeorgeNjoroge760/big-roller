@@ -6,7 +6,7 @@
     <style>
         @page { size: 80mm 200mm; margin: 10mm; }
         body { font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #000; margin: 0; padding: 0; }
-        h3 { font-size: 16px; font-weight: 800; color: #d4a84b; margin: 5px 0; text-align: center; }
+        h3 { font-size: 16px; font-weight: 800; margin: 5px 0; text-align: center; }
         small { font-size: 10px; color: #666; }
         table { width: 100%; border-collapse: collapse; font-size: 10px; }
         th { text-align: left; color: #666; font-size: 9px; padding: 4px 2px; }
@@ -14,7 +14,6 @@
         .text-center { text-align: center; }
         .text-end { text-align: right; }
         .text-muted { color: #666; }
-        .receipt-header { border-bottom: 2px dashed #d4a84b; padding-bottom: 8px; margin-bottom: 8px; text-align: center; }
         .receipt-divider { border-top: 1px dashed #ccc; margin: 6px 0; }
         .receipt-total { background: #f5f5f5; border-radius: 6px; padding: 8px; border: 1px solid #ddd; }
         .fw-bold { font-weight: bold; }
@@ -25,12 +24,15 @@
         .row { width: 100%; }
         .col-6 { width: 48%; display: inline-block; vertical-align: top; }
         .footer { text-align: center; color: #888; font-size: 9px; margin-top: 10px; }
+        .green-header { background: #2e7d32; padding: 12px; text-align: center; border-radius: 6px 6px 0 0; margin: -10mm -10mm 8px -10mm; }
+        .green-header h3 { color: #fff !important; }
+        .green-header small { color: rgba(255,255,255,0.85) !important; }
     </style>
 </head>
 <body>
-    <div class="receipt-header">
-        <h3>Cheers Club & Bar</h3>
-        <small>Receipt #{{ receipt.receipt_number }}</small>
+    <div class="green-header">
+        <h3 style="color:#fff;">Cheers Club & Bar</h3>
+        <small style="color:rgba(255,255,255,0.85);">Receipt #{{ receipt.receipt_number }}</small>
     </div>
     <div class="row mb-2">
         <div class="col-6">
