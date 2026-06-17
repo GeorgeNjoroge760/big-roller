@@ -22,7 +22,11 @@ export default function LoginScreen() {
     try {
       await login(username, password);
     } catch (e) {
-      Alert.alert('Login Failed', e.response?.data?.error || 'Invalid credentials');
+      if (e.code === 'ERR_NETWORK' || e.message === 'Network Error') {
+        Alert.alert('Connection Error', 'Could not reach the server.\nMake sure your phone is on the same WiFi as the PC.');
+      } else {
+        Alert.alert('Login Failed', e.response?.data?.detail || e.response?.data?.error || 'Invalid credentials');
+      }
     }
     setLoading(false);
   };

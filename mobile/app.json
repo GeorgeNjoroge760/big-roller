@@ -22,6 +22,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8e674ee1-eaf3-4071-980d-fc77068adcfe"
+      }
+    },
+    "owner": "georgen760"
   }
 }
