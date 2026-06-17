@@ -1,7 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_URL = 'https://georgen760.pythonanywhere.com/api';
+import { API_URL } from './config';
 
 const client = axios.create({
   baseURL: API_URL,
