@@ -138,3 +138,112 @@ npx expo start
 
 - Backend deployed on **PythonAnywhere** (`georgen760.pythonanywhere.com`)
 - Mobile app API URL configured in `mobile/src/api/config.js`
+
+## User Manual
+
+### Web App
+
+#### Login
+1. Open the web app in your browser.
+2. Enter your username and password, click **Login**.
+3. You'll be redirected to your role-specific dashboard.
+
+#### Admin
+- **Dashboard** — View today's revenue, pending orders, product count, and low-stock alerts.
+- **Products** — Add, edit, or remove products and categories. Set price, stock, and minimum stock level.
+- **Users** — Create and manage user accounts (assign roles: admin, waiter, counter).
+- **Orders** — View all orders across all statuses.
+- **Reports** — Generate daily reports with revenue breakdowns, best sellers, and PDF export.
+- **Notifications** — View system notifications.
+
+#### Waiter
+- **Dashboard** — See your pending orders, active orders, and total sales.
+- **Menu** — Browse products by category. Click to view details.
+- **Place Order** — Add items to cart, enter customer name and notes, confirm order.
+- **Receipts** — View receipts for completed orders.
+
+#### Counter Attendant
+- **Dashboard** — See pending orders, claimed orders, and completed orders today.
+- **Orders** — View pending orders. Click **Accept** to claim an order.
+- **Process Order** — Select payment method (cash/card/mobile/M-Pesa) and complete the order. Stock is deducted automatically.
+- **Receipts** — Print or download receipts as PDF.
+
+### Mobile App (React Native / Expo)
+
+#### Login
+1. Open the Big Roller app on your phone.
+2. Enter your username and password, tap **Login**.
+3. The app loads your role-based interface.
+
+#### Waiter (Mobile)
+
+**Dashboard Tab**
+- View pending orders count, active orders count, and total sales.
+- Tap **Browse Menu** to start a new order.
+- Tap **View Orders** to see your existing orders.
+
+**Menu Tab**
+- Products are grouped by category. Scroll or use the category filter.
+- Tap **+** to add an item to your cart, tap **-** to remove.
+- Use the search bar to find products by name.
+- Tap **View Cart** when ready.
+
+**Cart (Modal)**
+- Review all items, adjust quantities.
+- Enter **Customer Name** (required) and optional **Notes**.
+- Tap **Place Order** to submit. The counter attendants will be notified.
+
+**Orders Tab**
+- Lists all your orders with order number, customer, total, and status.
+- Tap any order to view full details.
+
+**Profile Tab**
+- View your account info (username, email, phone, role).
+- Tap **Logout** to sign out.
+
+#### Counter Attendant (Mobile)
+
+**Dashboard Tab**
+- View pending orders count, claimed orders count, and completed orders today.
+- Tap **View Pending Orders** to accept new orders.
+
+**Pending Orders Tab**
+- Orders are filtered by status: **Pending**, **Claimed**, **Preparing**.
+- Tap **Accept** on any pending order to claim it.
+- Tap an order to view full details.
+
+**Order Detail**
+- View customer name, waiter, items, and total.
+- Tap **Accept Order** to claim it.
+- Tap **Process Order** to proceed to payment.
+
+**Process Order (Modal)**
+- Select payment method: Cash, Card, Mobile, or M-Pesa.
+- Tap **Complete Order** to finish. Stock is deducted and the waiter is notified.
+- A receipt is generated automatically.
+
+**Profile Tab** — View your info and logout.
+
+#### Admin (Mobile)
+
+**Dashboard Tab**
+- View today's total revenue, pending orders count, total products, and low-stock items.
+
+**Products Tab**
+- View all products with stock status indicators (green = OK, yellow = low, red = out of stock).
+
+**Users Tab**
+- View all user accounts and their roles.
+
+**Profile Tab** — View your info and logout.
+
+#### Common Features (All Roles)
+
+**Notifications**
+- Tap the bell icon from any screen to view notifications.
+- Unread notifications are highlighted.
+- Tap a notification to mark it as read.
+- Tap **Mark All as Read** to clear all.
+
+**Order Detail**
+- Tap any order to see full details: order number, customer, items with quantities and prices, total, status timeline, assigned waiter and counter attendant.
