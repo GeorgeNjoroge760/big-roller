@@ -535,15 +535,59 @@ hr { border-color: var(--border-color); opacity: 0.8; }
 }
 
 /* Responsive */
+/* Tablet Landscape / Large Tablet (1024px and below) */
+@media (max-width: 1024px) {
+    .stat-card { padding: 1.25rem; }
+    .stat-card .stat-value { font-size: 1.6rem; }
+    .stat-card .stat-icon { font-size: 2rem; }
+    .page-header h1 { font-size: 1.5rem; }
+    .product-card .product-img { height: 150px; }
+    .chart-container { height: 260px; }
+    .navbar-brand { font-size: 1.2rem; }
+    .table td, .table th { padding: 0.7rem; }
+    .btn { padding: 0.4rem 1rem; }
+    .form-control, .form-select { padding: 0.6rem 0.85rem; }
+    .card-body { padding: 1.25rem; }
+    .card-header { padding: 1rem 1.25rem; }
+    .container-fluid { padding-left: 16px; padding-right: 16px; }
+}
+
+/* Tablet Portrait / Small Tablet (991px and below — matches Bootstrap lg breakpoint) */
+@media (max-width: 991px) {
+    .stat-card { padding: 1rem; }
+    .stat-card .stat-value { font-size: 1.4rem; }
+    .stat-card .stat-label { font-size: 0.75rem; }
+    .stat-card .stat-icon { font-size: 1.8rem; }
+    .page-header h1 { font-size: 1.3rem; }
+    .page-header p { font-size: 0.85rem; }
+    .navbar-brand { font-size: 1rem; }
+    .product-card .product-img { height: 130px; }
+    .chart-container { height: 240px; }
+    .table td, .table th { padding: 0.6rem; }
+    .btn { padding: 0.35rem 0.85rem; font-size: 0.85rem; }
+    .form-control, .form-select { padding: 0.55rem 0.75rem; font-size: 0.85rem; }
+    .card-body { padding: 1rem; }
+    .card-header { padding: 0.85rem 1rem; }
+    .container-fluid { padding-left: 14px; padding-right: 14px; }
+    .qty-group input { font-size: 0.85rem; }
+    .cart-sidebar { width: 360px; }
+}
+
 @media (max-width: 768px) {
     .cart-sidebar { width: 100%; right: -100%; }
     .stat-card .stat-value { font-size: 1.5rem; }
+    .stat-card { padding: 0.9rem; }
     .page-header h1 { font-size: 1.4rem; }
     .navbar-brand { font-size: 1.1rem; }
     .product-card .product-img { height: 140px; }
     body { overflow-x: hidden; }
     .container-fluid { padding-left: 12px; padding-right: 12px; }
     .qty-group { width: 110px; }
+    .table td, .table th { padding: 0.5rem; font-size: 0.78rem; }
+    .btn { font-size: 0.82rem; padding: 0.35rem 0.75rem; }
+    .form-control, .form-select { font-size: 0.85rem; padding: 0.5rem 0.7rem; }
+    .card-body { padding: 0.85rem; }
+    .card-header { padding: 0.75rem 0.85rem; }
 }
 
 @media (max-width: 576px) {
